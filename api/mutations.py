@@ -1,5 +1,6 @@
-from tkinter.tix import Tree
 import graphene
+from graphql_jwt.shortcuts import get_token
+from graphql_jwt.decorators import login_required
 
 from .types import PostType, CommentType, UserType
 from posts.models import Post, Comment
@@ -15,13 +16,8 @@ class CreateUserInput(graphene.InputObjectType):
     gender = graphene.String(required=True)
 
 
-class UserInput(graphene.InputObjectType):
-    username = graphene.String(required=True)
-
-
 class CreatePostInput(graphene.InputObjectType):
     text = graphene.String(required=True)
-    author = graphene.Field(UserInput)
 
 
 class PostInput(graphene.InputObjectType):
@@ -30,7 +26,6 @@ class PostInput(graphene.InputObjectType):
 
 class CreateCommentInput(graphene.InputObjectType):
     text = graphene.String(required=True)
-    author = graphene.Field(UserInput)
     post = graphene.Field(PostInput)
 
 
@@ -39,23 +34,22 @@ class CommentInput(graphene.InputObjectType):
 
 
 class LikePostInput(graphene.InputObjectType):
-    user = graphene.Field(UserInput)
     post = graphene.Field(PostInput)
 
 
 class LikeCommentInput(graphene.InputObjectType):
-    user = graphene.Field(UserInput)
     comment = graphene.Field(CommentInput)
 
 
 class CreateUser(graphene.Mutation):
     user = graphene.Field(UserType)
+    token = graphene.String()
 
     class Arguments:
         user_data = CreateUserInput(required=True)
 
-    @classmethod
-    def mutate(cls, root, info, user_data=None):
+    @staticmethod
+    def mutate(root, info, user_data=None):
         user = User(
             username=user_data.username,
             first_name=user_data.first_name,
@@ -65,7 +59,8 @@ class CreateUser(graphene.Mutation):
         )
         user.set_password(user_data.password)
         user.save()
-        return CreateUser(user=user)
+        token = get_token(user)
+        return CreateUser(user=user, token=token)
 
 
 class CreatePost(graphene.Mutation):
@@ -74,9 +69,10 @@ class CreatePost(graphene.Mutation):
     class Arguments:
         post_data = CreatePostInput(required=True)
 
-    @classmethod
-    def mutate(cls, root, info, post_data=None):
-        user = User.objects.get(username=post_data.author.username)
+    @staticmethod
+    @login_required
+    def mutate(root, info, post_data=None):
+        user = info.context.user
         post = Post.objects.create(
             text=post_data.text,
             author=user
@@ -91,14 +87,17 @@ class UpdatePost(graphene.Mutation):
 
     post = graphene.Field(PostType)
 
-    @classmethod
-    def mutate(cls, root, info, id, text):
+    @staticmethod
+    @login_required
+    def mutate(root, info, id, text):
         post = Post.objects.get(pk=id)
         if post:
-            post.text = text
-            post.save()
-            return UpdatePost(post=post)
-        return UpdatePost(post=None)
+            if info.context.user == post.author:
+                post.text = text
+                post.save()
+                return UpdatePost(post=post)
+            return None
+        return None
 
 
 class DeletePost(graphene.Mutation):
@@ -107,10 +106,12 @@ class DeletePost(graphene.Mutation):
 
     post = graphene.Field(PostType)
 
-    @classmethod
-    def mutate(cls, root, info, id):
+    @staticmethod
+    @login_required
+    def mutate(root, info, id):
         post = Post.objects.get(pk=id)
-        post.delete()
+        if info.context.user == post.author:
+            post.delete()
         return None
 
 
@@ -120,9 +121,10 @@ class CreateComment(graphene.Mutation):
     class Arguments:
         comment_data = CreateCommentInput(required=True)
 
-    @classmethod
-    def mutate(cls, root, info, comment_data=None):
-        user = User.objects.get(username=comment_data.author.username)
+    @staticmethod
+    @login_required
+    def mutate(root, info, comment_data=None):
+        user = info.context.user
         post = Post.objects.get(id=comment_data.post.id)
         comment = Comment.objects.create(
             text=comment_data.text,
@@ -139,14 +141,17 @@ class UpdateComment(graphene.Mutation):
 
     comment = graphene.Field(CommentType)
 
-    @classmethod
-    def mutate(cls, root, info, id, text):
+    @staticmethod
+    @login_required
+    def mutate(root, info, id, text):
         comment = Comment.objects.get(pk=id)
         if comment:
-            comment.text = text
-            comment.save()
-            return UpdateComment(comment=comment)
-        return UpdateComment(comment=None)
+            if info.context.user == comment.author:
+                comment.text = text
+                comment.save()
+                return UpdateComment(comment=comment)
+            return None
+        return None
 
 
 class DeleteComment(graphene.Mutation):
@@ -155,10 +160,12 @@ class DeleteComment(graphene.Mutation):
 
     comment = graphene.Field(CommentType)
 
-    @classmethod
-    def mutate(cls, root, info, id):
+    @staticmethod
+    @login_required
+    def mutate(root, info, id):
         comment = Comment.objects.get(pk=id)
-        comment.delete()
+        if info.context.user == comment.author:
+            comment.delete()
         return None
 
 
@@ -168,9 +175,10 @@ class LikePost(graphene.Mutation):
     class Arguments:
         data = LikePostInput(required=True)
 
-    @classmethod
-    def mutate(cls, root, info, data=None):
-        user = User.objects.get(username=data.user.username)
+    @staticmethod
+    @login_required
+    def mutate(root, info, data=None):
+        user = info.context.user
         post = Post.objects.get(id=data.post.id)
         post.users_who_liked.add(user)
         return LikePost(post=post)
@@ -182,9 +190,10 @@ class LikeComment(graphene.Mutation):
     class Arguments:
         data = LikeCommentInput(required=True)
 
-    @classmethod
-    def mutate(cls, root, info, data=None):
-        user = User.objects.get(username=data.user.username)
+    @staticmethod
+    @login_required
+    def mutate(root, info, data=None):
+        user = info.context.user
         comment = Comment.objects.get(id=data.comment.id)
         comment.users_who_liked.add(user)
         return LikePost(comment=comment)
