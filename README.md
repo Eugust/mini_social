@@ -23,7 +23,6 @@
  ```
 ## API
 #### Get all posts
- Request:
  ```
  query {
   allPosts(first:10) {
@@ -36,25 +35,7 @@
     likes
   }
 }
- ```
- Response:
- ```
- {
-  "data": {
-    "allPosts": [
-      {
-        "id": "4",
-        "text": "Some test post",
-        "pubDate": "2022-01-24T04:52:48.682562+00:00",
-        "author": {
-          "username": "test_user2"
-        },
-        "likes": 1
-      },
-    ...
-  }
- }
- ```
+```
 #### Get all comments of post
  ```
  query {
