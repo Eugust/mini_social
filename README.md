@@ -90,7 +90,7 @@
  mutation {
   createPost(
     postData: {
-			text: "Some test post4"
+	text: "Some test post4"
     }
   ) {
     post {
