@@ -23,6 +23,7 @@
  pipenv run python manage.py runserver
  ```
 ## API
+ Send requests you can here: [Graphql playground](http://127.0.0.1:8000/playground/)
 #### Get all posts
  ```
  query {
@@ -81,5 +82,112 @@
  ```
  {
   "authorization": token
+}
+ ```
+#### Requests for post
+ Create
+ ```
+ mutation {
+  createPost(
+    postData: {
+			text: "Some test post4"
+    }
+  ) {
+    post {
+      id
+      text
+      author {
+        id
+        username
+      }
+      pubDate
+    }
+  }
+}
+ ```
+ Update
+ ```
+ mutation {
+  updatePost (
+    id: 2,
+    text: "update test post"
+  ) {
+    post {
+      id
+      text
+    }
+  }
+}
+ ```
+ Delete
+ ```
+ mutation {
+  deletePost (
+    id: 2
+  ) {
+    post {
+      id
+    }
+  }
+}
+ ```
+#### Requests for comment
+ Create
+ ```
+ mutation {
+  createComment(
+    commentData: {
+      text: "nice comment bro2"
+      post: { id: 1 }
+    }
+  ) {
+    comment {
+      id
+      text
+      post {
+        id
+      }
+      author {
+        username
+      }
+    }
+  }
+}
+ ```
+#### Requests like post and comment
+ Like post
+ ```
+ mutation {
+  likePost (
+    id: 4
+  ) {
+    post {
+      id
+      text
+      pubDate
+      author{
+        username
+      }
+      likes
+    }
+  }
+}
+ ```
+ Like comment
+ ```
+ mutation {
+  likeComment (
+    id: 5
+  ) {
+    comment {
+      id
+      text
+      created
+      author {
+        username
+      }
+      likes
+    }
+  }
 }
  ```
