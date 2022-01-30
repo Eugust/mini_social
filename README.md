@@ -7,3 +7,8 @@
 ## Tools
  > Django  
  > GraphQL
+## Instruction
+ 1. Clone this repository
+ ```
+ git clone 
+ ```
