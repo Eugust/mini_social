@@ -21,3 +21,18 @@
  ```
  pipenv run python manage.py runserver
  ```
+## API
+ Get all posts
+ ```
+ query {
+  allPosts(first:10) {
+    id
+    text
+    pubDate
+    author{
+      username
+    }
+    likes
+  }
+}
+ ```
