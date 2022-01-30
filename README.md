@@ -1,7 +1,7 @@
 # mini_social
- Backend for mini social network__
+ Backend for mini social network
 ### Users capability:
- > Create, delete, update and read posts
+ > Create, delete, update and read posts__
  > Create, delete, update and read comment for post
  > Like posts or comments
 ## Tools
