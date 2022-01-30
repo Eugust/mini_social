@@ -154,6 +154,33 @@
   }
 }
  ```
+ Update
+ ```
+ mutation {
+  updateComment (
+    id: 6,
+    text: "updated comment"
+  ) {
+    comment {
+      id
+      text
+    }
+  }
+}
+ ```
+ Delete
+ ```
+ mutation {
+  deleteComment (
+    id: 6
+  ) {
+    comment {
+      id
+      text
+    }
+  }
+}
+ ```
 #### Requests like post and comment
  Like post
  ```
