@@ -6,7 +6,8 @@
  > Like posts or comments
 ## Tools
  > Django  
- > GraphQL
+ > GraphQL  
+ > GrapgQL playground
 ## Instruction
  Clone this repository
  ```
