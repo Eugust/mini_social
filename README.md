@@ -8,7 +8,16 @@
  > Django  
  > GraphQL
 ## Instruction
- 1. Clone this repository
+ Clone this repository
  ```
  git clone 
+ ```
+ Install pipenv (if you don't have)
+ ```
+ pip install --user pipx
+ pipx install pipenv
+ ```
+ Run server with pipenv
+ ```
+ pipenv run python manage.py runserver
  ```
