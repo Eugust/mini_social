@@ -1,4 +1,5 @@
 import graphene
+from graphql import GraphQLError
 from graphql_jwt.shortcuts import get_token
 from graphql_jwt.decorators import login_required
 
@@ -27,18 +28,6 @@ class PostInput(graphene.InputObjectType):
 class CreateCommentInput(graphene.InputObjectType):
     text = graphene.String(required=True)
     post = graphene.Field(PostInput)
-
-
-class CommentInput(graphene.InputObjectType):
-    id = graphene.ID()
-
-
-class LikePostInput(graphene.InputObjectType):
-    post = graphene.Field(PostInput)
-
-
-class LikeCommentInput(graphene.InputObjectType):
-    comment = graphene.Field(CommentInput)
 
 
 class CreateUser(graphene.Mutation):
@@ -96,8 +85,8 @@ class UpdatePost(graphene.Mutation):
                 post.text = text
                 post.save()
                 return UpdatePost(post=post)
-            return None
-        return None
+            raise GraphQLError('Not author!')
+        raise GraphQLError('Post is disappear')
 
 
 class DeletePost(graphene.Mutation):
@@ -112,7 +101,8 @@ class DeletePost(graphene.Mutation):
         post = Post.objects.get(pk=id)
         if info.context.user == post.author:
             post.delete()
-        return None
+            return None
+        raise GraphQLError('Not author!')
 
 
 class CreateComment(graphene.Mutation):
@@ -150,8 +140,8 @@ class UpdateComment(graphene.Mutation):
                 comment.text = text
                 comment.save()
                 return UpdateComment(comment=comment)
-            return None
-        return None
+            raise GraphQLError('Not author!')
+        raise GraphQLError('Comment is disappear')
 
 
 class DeleteComment(graphene.Mutation):
@@ -166,20 +156,21 @@ class DeleteComment(graphene.Mutation):
         comment = Comment.objects.get(pk=id)
         if info.context.user == comment.author:
             comment.delete()
-        return None
+            return None
+        raise GraphQLError('Not author!')
 
 
 class LikePost(graphene.Mutation):
     post = graphene.Field(PostType)
 
     class Arguments:
-        data = LikePostInput(required=True)
+        id = graphene.ID()
 
     @staticmethod
     @login_required
-    def mutate(root, info, data=None):
+    def mutate(root, info, id):
         user = info.context.user
-        post = Post.objects.get(id=data.post.id)
+        post = Post.objects.get(id=id)
         post.users_who_liked.add(user)
         return LikePost(post=post)
 
@@ -188,12 +179,12 @@ class LikeComment(graphene.Mutation):
     comment = graphene.Field(CommentType)
 
     class Arguments:
-        data = LikeCommentInput(required=True)
+        id = graphene.ID()
 
     @staticmethod
     @login_required
-    def mutate(root, info, data=None):
+    def mutate(root, info, id):
         user = info.context.user
-        comment = Comment.objects.get(id=data.comment.id)
+        comment = Comment.objects.get(id=id)
         comment.users_who_liked.add(user)
-        return LikePost(comment=comment)
+        return LikeComment(comment=comment)
