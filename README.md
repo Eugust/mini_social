@@ -1,2 +1,9 @@
 # mini_social
- Django + GraphQL
+ Backend for mini social network__
+### Users capability:
+ > Create, delete, update and read posts
+ > Create, delete, update and read comment for post
+ > Like posts or comments
+## Tools
+ > Django
+ > GraphQL
