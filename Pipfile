@@ -4,6 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+django = "*"
+graphene-django = "*"
+django-graphql-playground = "*"
+pytz = "*"
+typing-extensions = "*"
+django-graphql-jwt = "*"
 
 [dev-packages]
 
