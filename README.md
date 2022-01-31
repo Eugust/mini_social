@@ -18,6 +18,14 @@
  pip install --user pipx
  pipx install pipenv
  ```
+ Install packeges
+ ```
+ pipenv install
+ ```
+ Run migrate
+ ```
+ pipenv run python manage.py migrate
+ ```
  Run server with pipenv
  ```
  pipenv run python manage.py runserver
