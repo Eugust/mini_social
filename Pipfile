@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "3.2.11"
 graphene-django = "*"
 django-graphql-playground = "*"
 pytz = "*"
