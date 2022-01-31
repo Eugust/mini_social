@@ -89,7 +89,7 @@
  Use token in HTTP HEADERS:
  ```
  {
-  "authorization": token
+  "authorization": "JWT {token}"
 }
  ```
 #### Requests for post
