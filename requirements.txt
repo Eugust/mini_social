@@ -1,6 +1,0 @@
-django
-graphene_django
-django-graphql-playground
-pytz
-typing_extensions
-django-graphql-jwt
